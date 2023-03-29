@@ -4,7 +4,12 @@ import { ConfigMangerService } from './config.service';
 
 @Global()
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true })],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
+    }),
+  ],
   providers: [ConfigMangerService],
   exports: [ConfigMangerService],
 })

@@ -14,8 +14,10 @@ import {
   Delete,
   HttpCode,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
-import { AuthGuard, IRequestUser } from 'src/infrastructure/auth/jwt.guard';
+import { HasRoles, RolesGuard, Role } from 'src/infrastructure/auth/role.guard';
+import { IRequestUser } from 'src/infrastructure/auth/jwt.guard';
 
 import {
   BuyProductDto,
@@ -32,7 +34,8 @@ import { ProductService } from 'src/domain/services/product.service';
 export class ProductController {
   constructor(private productService: ProductService) {}
 
-  @UseGuards(AuthGuard)
+  @HasRoles(Role.SELLER)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   async create(@Request() req: IRequestUser, @Body() body: CreateProductDto) {
@@ -47,8 +50,8 @@ export class ProductController {
     };
   }
 
-  @UseGuards(AuthGuard)
-  @Put('update/:product_id')
+  @HasRoles(Role.SELLER)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @HttpCode(HttpStatus.OK)
   async update(
     @Request() req: IRequestUser,
@@ -66,7 +69,8 @@ export class ProductController {
     };
   }
 
-  @UseGuards(AuthGuard)
+  @HasRoles(Role.BUYER)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Post('buy')
   @HttpCode(HttpStatus.CREATED)
   async buy(@Request() req: IRequestUser, @Body() body: BuyProductDto) {
@@ -77,7 +81,8 @@ export class ProductController {
     );
   }
 
-  @UseGuards(AuthGuard)
+  @HasRoles(Role.SELLER)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Delete('delete/:product_id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Request() req: IRequestUser, @Param() body: ProductParamsDto) {
@@ -90,7 +95,7 @@ export class ProductController {
     return this.productService.getProducts(query.cursor);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Get('list-by-seller')
   @HttpCode(HttpStatus.OK)
   async listBySeller(

@@ -8,9 +8,10 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
-import { Roles } from 'src/infrastructure/auth/role.guard';
-import { AuthGuard, IRequestUser } from 'src/infrastructure/auth/jwt.guard';
+import { HasRoles, RolesGuard, Role } from 'src/infrastructure/auth/role.guard';
+import { IRequestUser } from 'src/infrastructure/auth/jwt.guard';
 
 import {
   LoginUserDto,
@@ -49,8 +50,8 @@ export class UserController {
     };
   }
 
-  @UseGuards(AuthGuard)
-  @Roles('buyer')
+  @HasRoles(Role.BUYER)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Post('deposit')
   async deposit(
     @Request() req: IRequestUser,
@@ -63,8 +64,8 @@ export class UserController {
     };
   }
 
-  @UseGuards(AuthGuard)
-  @Roles('buyer')
+  @HasRoles(Role.BUYER)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Put('reset-deposit')
   async resetDeposit(@Request() req: IRequestUser) {
     await this.userService.resetDeposit(req.user.userId);
